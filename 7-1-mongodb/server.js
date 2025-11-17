@@ -169,22 +169,95 @@
 
 import mongoose from "mongoose";
 
-// establish connection
+const connectDB = async () => {
+    try {
+        const connectionString = "mongodb+srv://Maryam:may@cluster0.xc79k9p.mongodb.net/";
 
+        await mongoose.connect(connectionString, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        });
 
-// define schema
+        console.log("Connected to MongoDB successfully!");
+    } catch (error) {
+        console.error("Connection failed:", error.message);
+        process.exit(1);
+    }
+};
 
+const studentSchema = new mongoose.Schema({
+    name: String,
+    age: Number,
+    major: String
+});
 
-// create document
+const Student = mongoose.model("Student", studentSchema);
 
+async function createStudents() {
+    try {
+        await Student.insertMany([
+            { name: "Ali", age: 21, major: "CS" },
+            { name: "Sara", age: 23, major: "SE" }
+        ]);
+        console.log("Documents inserted successfully!");
+    } catch (error) {
+        console.error("Error inserting documents:", error.message);
+    }
+}
 
-// read document
+async function readStudents() {
+    try {
+        const allStudents = await Student.find();
+        console.log(" All Students:");
+        console.log(allStudents);
+        return allStudents;
+    } catch (error) {
+        console.error(" Error reading documents:", error.message);
+    }
+}
 
+async function updateStudent() {
+    try {
+        await Student.updateOne({ name: "Ali" }, { age: 22 });
+        console.log(" Updated Ali's age to 22");
+    } catch (error) {
+        console.error(" Error updating document:", error.message);
+    }
+}
 
-// update document
+async function deleteStudent() {
+    try {
+        await Student.deleteOne({ name: "Sara" });
+        console.log("Deleted Sara from database");
+    } catch (error) {
+        console.error("Error deleting document:", error.message);
+    }
+}
 
+async function main() {
 
-// delete document
+    await connectDB();
+
+    await createStudents();
+
+    await readStudents();
+
+    await updateStudent();
+
+    console.log("\nStudents after update:");
+    await readStudents();
+
+    await deleteStudent();
+
+    console.log("\nFinal students list:");
+    await readStudents();
+
+    mongoose.connection.close();
+    console.log("🔌 Database connection closed");
+}
+
+main().catch(console.error);
+
 
 
 
